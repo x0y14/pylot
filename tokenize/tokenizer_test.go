@@ -1,7 +1,6 @@
 package tokenize
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -49,9 +48,24 @@ func TestTokenizer_Tokenize(t *testing.T) {
 			},
 		},
 		{
-			"[ast] class",
-			`Module(body=[ClassDef(name='Name', bases=[], keywords=[], body=[FunctionDef(name='__init__', args=arguments(posonlyargs=[], args=[arg(arg='self'), arg(arg='first', annotation=Name(id='str', ctx=Load())), arg(arg='middle', annotation=Name(id='str', ctx=Load())), arg(arg='last', annotation=Name(id='str', ctx=Load()))], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[AnnAssign(target=Attribute(value=Name(id='self', ctx=Load()), attr='first', ctx=Store()), annotation=Name(id='str', ctx=Load()), value=Name(id='first', ctx=Load()), simple=0), AnnAssign(target=Attribute(value=Name(id='self', ctx=Load()), attr='middle', ctx=Store()), annotation=Name(id='str', ctx=Load()), value=Name(id='middle', ctx=Load()), simple=0), AnnAssign(target=Attribute(value=Name(id='self', ctx=Load()), attr='last', ctx=Store()), annotation=Name(id='str', ctx=Load()), value=Name(id='last', ctx=Load()), simple=0)], decorator_list=[]), FunctionDef(name='to_s', args=arguments(posonlyargs=[], args=[arg(arg='self')], kwonlyargs=[], kw_defaults=[], defaults=[]), body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[BinOp(left=BinOp(left=BinOp(left=BinOp(left=Attribute(value=Name(id='self', ctx=Load()), attr='first', ctx=Load()), op=Add(), right=Constant(value=' ')), op=Add(), right=Attribute(value=Name(id='self', ctx=Load()), attr='middle', ctx=Load())), op=Add(), right=Constant(value=' ')), op=Add(), right=Attribute(value=Name(id='self', ctx=Load()), attr='last', ctx=Load()))], keywords=[]))], decorator_list=[], returns=Constant(value=None))], decorator_list=[])], type_ignores=[])`,
-			[]Token{},
+			"[ast] module empty",
+			`Module(body=[], type_ignores=[])`,
+			[]Token{
+				{IDENT, "Module", 0, 6},
+				{LBR, "(", 6, 7},
+				{IDENT, "body", 7, 11},
+				{EQU, "=", 11, 12},
+				{LSQB, "[", 12, 13},
+				{RSQB, "]", 13, 14},
+				{COMMA, ",", 14, 15},
+				{WHITE, " ", 15, 16},
+				{IDENT, "type_ignores", 16, 28},
+				{EQU, "=", 28, 29},
+				{LSQB, "[", 29, 30},
+				{RSQB, "]", 30, 31},
+				{RBR, ")", 31, 32},
+				{EOF, "", 32, 32},
+			},
 		},
 	}
 
@@ -62,9 +76,9 @@ func TestTokenizer_Tokenize(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			for _, tk := range actual {
-				fmt.Println(tk.String())
-			}
+			//for _, tk := range actual {
+			//	fmt.Println(tk.String())
+			//}
 			assert.Equal(t, tt.expect, actual)
 		})
 	}
