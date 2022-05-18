@@ -38,9 +38,14 @@ func (p *Parser) parse() {
 			p.module()
 		case c.TokenKind == tokenize.IDENT && c.Raw == "ClassDef":
 			p.classDef()
+		case c.TokenKind == tokenize.COMMA:
+			p.print(",")
+			p.consume(",")
 		case c.TokenKind == tokenize.RBR:
+			// ?
 			return // )
 		case c.TokenKind == tokenize.RSQB:
+			// ?
 			return // ]
 		}
 		//p.goNext()

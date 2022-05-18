@@ -22,6 +22,11 @@ func TestParser_Parse(t *testing.T) {
 			"Module(body=[ClassDef(name=\"john\")], type_ignores=[])",
 			`{"type":"module","body":[{"type":"classDef","name":"john"}],"type_ignores":[]}`,
 		},
+		{
+			"class-def in module",
+			"Module(body=[ClassDef(name=\"john\"),ClassDef(name=\"tom\")], type_ignores=[])",
+			`{"type":"module","body":[{"type":"classDef","name":"john"},{"type":"classDef","name":"tom"}],"type_ignores":[]}`,
+		},
 	}
 
 	tokenizer := tokenize.NewTokenizer()

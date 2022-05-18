@@ -1,0 +1,105 @@
+{
+  "type": "module",
+  "body": [
+    {
+      "type": "classDef",
+      "name": "Name",
+      "bases": [],
+      "keywords": [],
+      "body": [
+        {
+          "type": "functionDef",
+          "name": "__init__",
+          "args": {
+            "type": "arguments",
+            "posonlyargs": [],
+            "args": [
+              {
+                "type": "arg",
+                "arg": "self"
+              },
+              {
+                "type": "arg",
+                "arg": "first",
+                "annotation": {
+                  "type": "name",
+                  "id": "str",
+                  "ctx": "load"
+                }
+              },
+              {
+                "type": "arg",
+                "arg": "last",
+                "annotation": {
+                  "type": "name",
+                  "id": "str",
+                  "ctx": "load"
+                }
+              }
+            ],
+            "kwonlyargs": [],
+            "kw_defaults": [],
+            "defaults": []
+          },
+          "body": [
+            {
+              "type": "AnnAssign",
+              "target": {
+                "type": "attribute",
+                "value": {
+                  "type": "name",
+                  "id": "self",
+                  "ctx": "load"
+                },
+                "attr": "first",
+                "ctx": "store"
+              },
+              "annotation": {
+                "type": "name",
+                "id": "str",
+                "ctx": "load"
+              },
+              "value": {
+                "type": "name",
+                "id": "first",
+                "ctx": "load"
+              },
+              "simple": 0
+            },
+            {
+              "type": "AnnAssign",
+              "target": {
+                "type": "attribute",
+                "value": {
+                  "type": "name",
+                  "id": "self",
+                  "ctx": "load"
+                },
+                "attr": "last",
+                "ctx": "store"
+              },
+              "annotation": {
+                "type": "name",
+                "id": "str",
+                "ctx": "load"
+              },
+              "value": {
+                "type": "name",
+                "id": "last",
+                "ctx": "load"
+              },
+              "simple": 0
+            }
+          ],
+          "decorator_list": [],
+          "returns": {
+            "type": "constant",
+            "value": null
+          }
+        }
+      ],
+      "decorator_list": []
+    }
+  ],
+  "type_ignores": []
+}
