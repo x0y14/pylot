@@ -7,6 +7,7 @@ const (
 	EOF
 	IDENT  // keyword
 	STRING // ""
+	NUMBER // 0123456789
 	LBR    // (
 	RBR    // )
 	LSQB   // [
@@ -19,6 +20,7 @@ const (
 var kinds = [...]string{
 	IDENT:  "IDENT",
 	STRING: "STRING",
+	NUMBER: "NUMBER",
 	LBR:    "LBR",
 	RBR:    "RBR",
 	LSQB:   "LSQB",

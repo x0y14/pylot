@@ -1,6 +1,9 @@
 package tokenize
 
-import "unicode"
+import (
+	"fmt"
+	"unicode"
+)
 
 type Tokenizer struct {
 	pos   int
@@ -14,7 +17,7 @@ func NewTokenizer() *Tokenizer {
 	}
 }
 
-func (t *Tokenizer) Tokenize(text string) []Token {
+func (t *Tokenizer) Tokenize(text string) ([]Token, error) {
 	t.runes = []rune(text)
 
 	var result []Token
@@ -27,9 +30,14 @@ func (t *Tokenizer) Tokenize(text string) []Token {
 			tok := t.ident()
 			result = append(result, *tok)
 			continue // 新しい領域に踏み込んでるので goNextは不要
-		case c == '"':
+		case c == '"' || c == '\'':
 			// string
 			tok := t.str()
+			result = append(result, *tok)
+			continue // 新しい領域に踏み込んでるので goNextは不要
+		case c == '-' || 48 <= c && c <= 57:
+			// - || 0-9
+			tok := t.number()
 			result = append(result, *tok)
 			continue // 新しい領域に踏み込んでるので goNextは不要
 		case unicode.IsSpace(c):
@@ -55,10 +63,15 @@ func (t *Tokenizer) Tokenize(text string) []Token {
 		case c == '=':
 			tok := NewToken(EQU, string(c), t.pos, t.pos+1)
 			result = append(result, *tok)
+
+		default:
+			return nil, fmt.Errorf("unexpected token[%d]: %v", t.pos, string(c))
 		}
 		t.goNext()
 	}
-	return result
+
+	result = append(result, *NewToken(EOF, "", t.pos, t.pos))
+	return result, nil
 }
 
 func (t *Tokenizer) prev() rune {
@@ -96,10 +109,18 @@ func (t *Tokenizer) ident() *Token {
 func (t *Tokenizer) str() *Token {
 	raw := ""
 	s := t.pos
-	t.goNext() // "
+
+	var dq bool
+	if t.curt() == '"' {
+		dq = true
+	} else {
+		dq = false
+	}
+
+	t.goNext() // " or '
 	for !t.isEof() {
 		c := t.curt()
-		if c == '"' {
+		if c == '"' && dq || c == '\'' && !dq {
 			if t.pos != 0 && t.prev() == '\\' {
 				raw += string(c)
 				t.goNext()
@@ -114,6 +135,22 @@ func (t *Tokenizer) str() *Token {
 	t.goNext()
 	e := t.pos
 	return NewToken(STRING, raw, s, e)
+}
+
+func (t *Tokenizer) number() *Token {
+	raw := ""
+	s := t.pos
+	for !t.isEof() {
+		c := t.curt()
+		if c == '-' || c == '.' || 48 <= c && c <= 57 {
+			raw += string(c)
+		} else {
+			break
+		}
+		t.goNext()
+	}
+	e := t.pos
+	return NewToken(NUMBER, raw, s, e)
 }
 
 func (t *Tokenizer) white() *Token {

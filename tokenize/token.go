@@ -22,5 +22,5 @@ func NewToken(kind TokenKind, raw string, s, e int) *Token {
 }
 
 func (t *Token) String() string {
-	return fmt.Sprintf("{ TYPE: %7v, RAW: %10v, POS: %8v }", t.TokenKind.String(), strconv.Quote(t.Raw), fmt.Sprintf("%d:%d", t.S, t.E))
+	return fmt.Sprintf("{ TYPE: %7v, RAW: %20v, POS: %10v }", t.TokenKind.String(), strconv.Quote(t.Raw), fmt.Sprintf("%d:%d", t.S, t.E))
 }
