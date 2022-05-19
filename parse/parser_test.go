@@ -32,7 +32,7 @@ func TestParser_Parse(t *testing.T) {
 	tokenizer := tokenize.NewTokenizer()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tokens, err := tokenizer.Tokenize(tt.in)
+			tokens, err := tokenizer.Tokenize(tt.in, true)
 			if err != nil {
 				t.Fatal(err)
 			}

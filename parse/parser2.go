@@ -2,8 +2,13 @@ package parse
 
 import (
 	"fmt"
+	"pylot"
 	"pylot/tokenize"
 	"strconv"
+)
+
+var (
+	reserved = []string{"None", "True", "False"}
 )
 
 type Parser2 struct {
@@ -57,14 +62,20 @@ loop:
 		curt := p.curt()
 		switch {
 		case curt.TokenKind == tokenize.IDENT:
-			if p.next().TokenKind == tokenize.LBR {
+			if pylot.StringsContain(reserved, curt.Raw) {
+				p.keyword()
+			} else if p.next().TokenKind == tokenize.LBR {
 				p.def()
 			} else {
 				p.param()
 			}
 		case curt.TokenKind == tokenize.COMMA:
+			//p.write(",")
+			//fmt.Printf("$%v", p.next().TokenKind.String())
+			if p.next().TokenKind != tokenize.RSQB && p.next().TokenKind != tokenize.RBR {
+				p.write(",")
+			}
 			p.consume(",")
-			p.write(",")
 		case curt.TokenKind == tokenize.LSQB:
 			// [
 			p.list()
@@ -91,7 +102,10 @@ func (p *Parser2) def() {
 	ident := p.curt()
 	p.goNext()
 	p.consume("(")
-	p.write(fmt.Sprintf(`{"type":"%v",`, ident.Raw))
+	p.write(fmt.Sprintf(`{"type":"%v"`, ident.Raw))
+	if p.curt().TokenKind == tokenize.IDENT {
+		p.write(",")
+	}
 	p.parse()
 	p.consume(")")
 	p.write("}")
@@ -112,8 +126,21 @@ func (p *Parser2) list() {
 	p.consume("]")
 	p.write("]")
 }
+
 func (p *Parser2) value() {
 	v := p.curt()
 	p.write(strconv.Quote(v.Raw))
+	p.goNext()
+}
+
+func (p *Parser2) keyword() {
+	switch p.curt().Raw {
+	case "None":
+		p.write("null")
+	case "True":
+		p.write("true")
+	case "False":
+		p.write("false")
+	}
 	p.goNext()
 }

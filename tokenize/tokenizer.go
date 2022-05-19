@@ -17,7 +17,7 @@ func NewTokenizer() *Tokenizer {
 	}
 }
 
-func (t *Tokenizer) Tokenize(text string) ([]Token, error) {
+func (t *Tokenizer) Tokenize(text string, excludeWhite bool) ([]Token, error) {
 	t.runes = []rune(text)
 
 	var result []Token
@@ -43,7 +43,9 @@ func (t *Tokenizer) Tokenize(text string) ([]Token, error) {
 		case unicode.IsSpace(c):
 			// white
 			tok := t.white()
-			result = append(result, *tok)
+			if !excludeWhite {
+				result = append(result, *tok)
+			}
 			continue // 新しい領域に踏み込んでるので goNextは不要
 		case c == '(':
 			tok := NewToken(LBR, string(c), t.pos, t.pos+1)

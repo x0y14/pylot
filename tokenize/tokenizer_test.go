@@ -72,7 +72,7 @@ func TestTokenizer_Tokenize(t *testing.T) {
 	tokenizer := NewTokenizer()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actual, err := tokenizer.Tokenize(tt.in)
+			actual, err := tokenizer.Tokenize(tt.in, false)
 			if err != nil {
 				t.Fatal(err)
 			}
