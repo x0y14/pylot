@@ -80,6 +80,63 @@ func cFunctionDef(className string, m map[string]any) error {
 	if !ok {
 		return fmt.Errorf("functionDef need name field")
 	}
-	fmt.Printf("@%v.%v\n", className, name)
+
+	// return check
+	// 定数ならcConstant、それ以外はそもそも存在しない場合(void)、Name()が入る場合がある
+	var returnType string
+	rtInfo, ok := m["returns"].(map[string]any)
+	if !ok {
+		// それ以外はそもそも存在しない場合(void)
+		returnType = "void"
+	} else {
+		rt_, err := analyzeRtInfo(rtInfo)
+		if err != nil {
+			return err
+		}
+		returnType = rt_
+	}
+
+	fmt.Printf("%v @%v.%v\n", returnType, className, name)
 	return nil
+}
+
+func analyzeRtInfo(m map[string]any) (string, error) {
+	typ, ok := m["type"].(string)
+	if !ok {
+		return "", fmt.Errorf("returns need type field")
+	}
+	if typ == "Name" {
+		return cName(m)
+	} else if typ == "Constant" {
+		return cConstant(m)
+	} else {
+		panic("unsupported")
+	}
+}
+
+// 定数
+func cConstant(m map[string]any) (string, error) {
+	val, ok := m["value"]
+	if !ok {
+		return "", fmt.Errorf("constatn need value field")
+	}
+
+	if val == nil {
+		// null
+		return "void", nil
+	}
+
+	// ?
+	panic("unsupported")
+	return "", nil
+}
+
+// ネームスペース？
+func cName(m map[string]any) (string, error) {
+	id, ok := m["id"].(string)
+	if !ok {
+		return "", fmt.Errorf("name need id field")
+	}
+
+	return id, nil
 }
