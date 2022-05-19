@@ -96,7 +96,23 @@ func cFunctionDef(className string, m map[string]any) error {
 		returnType = rt_
 	}
 
-	fmt.Printf("%v @%v.%v\n", returnType, className, name)
+	fmt.Printf("define %v @%v.%v(", returnType, className, name)
+
+	// param
+	args, ok := m["args"].(map[string]any)
+	if !ok {
+		panic("unsupported")
+	}
+	arguments, err := cArguments(args)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%v", arguments)
+	fmt.Printf(") ")
+
+	fmt.Printf("{")
+	fmt.Printf("}\n")
+
 	return nil
 }
 
@@ -139,4 +155,65 @@ func cName(m map[string]any) (string, error) {
 	}
 
 	return id, nil
+}
+
+//
+func cArguments(m map[string]any) (string, error) {
+	arguments := ""
+
+	args, ok := m["args"].([]any)
+	if !ok {
+		return "", fmt.Errorf("arguments need args field")
+	}
+	for i, arg := range args {
+		argStr, err := cArg(arg.(map[string]any))
+		if err != nil {
+			return "", err
+		}
+		arguments += argStr
+		// 表示用コンマ
+		if i != len(args)-1 {
+			arguments += ", "
+		}
+	}
+	return arguments, nil
+}
+
+func cArg(m map[string]any) (string, error) {
+	argName, ok := m["arg"].(string)
+	if !ok {
+		return "", fmt.Errorf("arg need arg field")
+	}
+	var argType string
+	annotation, ok := m["annotation"].(map[string]any)
+	if ok {
+		aTyp, err := cAnnotation(annotation)
+		if err != nil {
+			return "", err
+		}
+		argType = aTyp
+	} else {
+		argType = "unknown"
+	}
+
+	return fmt.Sprintf("%v %%%v", argType, argName), nil
+}
+
+func cAnnotation(m map[string]any) (string, error) {
+	typ, err := cName(m)
+	if err != nil {
+		return "", err
+	}
+	return typ, nil
+}
+
+func cAttribute(m map[string]any) {}
+
+func cAnnAssign(m map[string]any) (string, error) {
+	// target : attribute
+	// annotation : name
+	// value : name
+	// simple : int
+
+	return "", nil
 }
