@@ -1,25 +1,23 @@
-package parse
+package pylot
 
 import (
 	"fmt"
-	"pylot"
-	"pylot/tokenize"
 	"strconv"
 )
 
 type Parser struct {
 	pos    int
-	tokens []tokenize.Token
+	tokens []Token
 	out    string
 }
 
-func Parse(tokens []tokenize.Token) string {
+func Parse(tokens []Token) string {
 	psr := NewParser(tokens)
 	psr.parse()
 	return psr.out
 }
 
-func NewParser(tokens []tokenize.Token) *Parser {
+func NewParser(tokens []Token) *Parser {
 	return &Parser{
 		pos:    0,
 		tokens: tokens,
@@ -35,39 +33,39 @@ func (p *Parser) parse() {
 	for !p.isEof() {
 		c := p.curt()
 		switch {
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Module":
+		case c.TokenKind == IDENT && c.Raw == "Module":
 			p.module()
-		case c.TokenKind == tokenize.IDENT && c.Raw == "ClassDef":
+		case c.TokenKind == IDENT && c.Raw == "ClassDef":
 			p.classDef()
-		case c.TokenKind == tokenize.IDENT && c.Raw == "arguments":
+		case c.TokenKind == IDENT && c.Raw == "arguments":
 			p.arguments()
-		case c.TokenKind == tokenize.IDENT && c.Raw == "arg":
+		case c.TokenKind == IDENT && c.Raw == "arg":
 			p.arg()
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Attribute":
+		case c.TokenKind == IDENT && c.Raw == "Attribute":
 			panic("")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Constant":
+		case c.TokenKind == IDENT && c.Raw == "Constant":
 			panic("")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Name":
+		case c.TokenKind == IDENT && c.Raw == "Name":
 			p.name()
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Expr":
+		case c.TokenKind == IDENT && c.Raw == "Expr":
 			panic("")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Call":
+		case c.TokenKind == IDENT && c.Raw == "Call":
 			panic("")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "BinOp":
+		case c.TokenKind == IDENT && c.Raw == "BinOp":
 			panic("")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Add":
+		case c.TokenKind == IDENT && c.Raw == "Add":
 			p.add()
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Store":
+		case c.TokenKind == IDENT && c.Raw == "Store":
 			p.store()
-		case c.TokenKind == tokenize.IDENT && c.Raw == "Load":
+		case c.TokenKind == IDENT && c.Raw == "Load":
 			p.load()
-		case c.TokenKind == tokenize.COMMA:
+		case c.TokenKind == COMMA:
 			p.write(",")
 			p.consume(",")
-		case c.TokenKind == tokenize.RBR:
+		case c.TokenKind == RBR:
 			// ?
 			return // )
-		case c.TokenKind == tokenize.RSQB:
+		case c.TokenKind == RSQB:
 			// ?
 			return // ]
 		}
@@ -79,7 +77,7 @@ func (p *Parser) isEof() bool {
 	return p.pos >= len(p.tokens)
 }
 
-func (p *Parser) curt() tokenize.Token {
+func (p *Parser) curt() Token {
 	return p.tokens[p.pos]
 }
 
@@ -105,7 +103,7 @@ loop:
 	for !p.isEof() {
 		c := p.curt()
 		switch {
-		case c.TokenKind == tokenize.IDENT && c.Raw == "body":
+		case c.TokenKind == IDENT && c.Raw == "body":
 			p.consume("body")
 			p.consume("=")
 			p.consume("[")
@@ -113,7 +111,7 @@ loop:
 			p.parse()
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "type_ignores":
+		case c.TokenKind == IDENT && c.Raw == "type_ignores":
 			p.consume("type_ignores")
 			p.consume("=")
 			p.consume("[")
@@ -121,12 +119,12 @@ loop:
 			p.parse()
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.COMMA:
+		case c.TokenKind == COMMA:
 			p.write(",")
 			p.consume(",")
-		case c.TokenKind == tokenize.WHITE:
+		case c.TokenKind == WHITE:
 			p.goNext()
-		case c.TokenKind == tokenize.RBR:
+		case c.TokenKind == RBR:
 			p.consume(")")
 			break loop
 		default:
@@ -134,7 +132,7 @@ loop:
 		}
 	}
 	p.write("}")
-	if p.curt().TokenKind != tokenize.EOF {
+	if p.curt().TokenKind != EOF {
 		panic("expect eof, but found" + p.curt().TokenKind.String())
 	}
 	p.consume("")
@@ -151,12 +149,12 @@ loop:
 	for !p.isEof() {
 		c := p.curt()
 		switch {
-		case c.TokenKind == tokenize.IDENT && c.Raw == "name":
+		case c.TokenKind == IDENT && c.Raw == "name":
 			p.consume("name")
 			p.consume("=")
 			p.write(fmt.Sprintf("\"name\":%v", strconv.Quote(p.curt().Raw)))
 			p.goNext() // string
-		case c.TokenKind == tokenize.IDENT && c.Raw == "bases":
+		case c.TokenKind == IDENT && c.Raw == "bases":
 			p.consume("bases")
 			p.consume("=")
 			p.consume("[")
@@ -164,7 +162,7 @@ loop:
 			p.parse() // 中身不明
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "keywords":
+		case c.TokenKind == IDENT && c.Raw == "keywords":
 			p.consume("keywords")
 			p.consume("=")
 			p.consume("[")
@@ -172,7 +170,7 @@ loop:
 			p.parse() // 中身不明
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "body":
+		case c.TokenKind == IDENT && c.Raw == "body":
 			p.consume("body")
 			p.consume("=")
 			p.consume("[")
@@ -180,7 +178,7 @@ loop:
 			p.parse()
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "decorator_list":
+		case c.TokenKind == IDENT && c.Raw == "decorator_list":
 			p.consume("decorator_list")
 			p.consume("=")
 			p.consume("[")
@@ -188,12 +186,12 @@ loop:
 			p.parse() // 中身不明
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.COMMA:
+		case c.TokenKind == COMMA:
 			p.write(",")
 			p.consume(",")
-		case c.TokenKind == tokenize.WHITE:
+		case c.TokenKind == WHITE:
 			p.goNext()
-		case c.TokenKind == tokenize.RBR:
+		case c.TokenKind == RBR:
 			p.consume(")")
 			break loop
 		default:
@@ -214,12 +212,12 @@ loop:
 	for !p.isEof() {
 		c := p.curt()
 		switch {
-		case c.TokenKind == tokenize.IDENT && c.Raw == "name":
+		case c.TokenKind == IDENT && c.Raw == "name":
 			p.consume("name")
 			p.consume("=")
 			p.write(fmt.Sprintf("\"name\":%v", strconv.Quote(p.curt().Raw)))
 			p.goNext() // string
-		case c.TokenKind == tokenize.IDENT && c.Raw == "args":
+		case c.TokenKind == IDENT && c.Raw == "args":
 			p.consume("args")
 			p.consume("=")
 			p.consume("[")
@@ -227,7 +225,7 @@ loop:
 			p.parse()
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "body":
+		case c.TokenKind == IDENT && c.Raw == "body":
 			p.consume("body")
 			p.consume("=")
 			p.consume("[")
@@ -235,7 +233,7 @@ loop:
 			p.parse()
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.IDENT && c.Raw == "decorator_list":
+		case c.TokenKind == IDENT && c.Raw == "decorator_list":
 			p.consume("decorator_list")
 			p.consume("=")
 			p.consume("[")
@@ -243,12 +241,12 @@ loop:
 			p.parse() // 中身不明
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.COMMA:
+		case c.TokenKind == COMMA:
 			p.write(",")
 			p.consume(",")
-		case c.TokenKind == tokenize.WHITE:
+		case c.TokenKind == WHITE:
 			p.goNext()
-		case c.TokenKind == tokenize.RBR:
+		case c.TokenKind == RBR:
 			p.consume(")")
 			break loop
 		default:
@@ -270,8 +268,8 @@ loop:
 	for p.isEof() {
 		c := p.curt()
 		switch c.TokenKind {
-		case tokenize.IDENT:
-			if !pylot.StringsContain(params, c.Raw) {
+		case IDENT:
+			if !StringsContain(params, c.Raw) {
 				panic("unexpected parameter: " + c.String())
 			}
 			p.consume(c.Raw)
@@ -281,12 +279,12 @@ loop:
 			p.parse()
 			p.consume("]")
 			p.write("]")
-		case tokenize.COMMA:
+		case COMMA:
 			p.write(",")
 			p.consume(",")
-		case tokenize.WHITE:
+		case WHITE:
 			p.goNext()
-		case tokenize.RBR:
+		case RBR:
 			p.consume(")")
 			break loop
 		default:
@@ -306,13 +304,13 @@ loop:
 	for !p.isEof() {
 		c := p.curt()
 		switch {
-		case c.TokenKind == tokenize.IDENT && c.Raw == "arg":
+		case c.TokenKind == IDENT && c.Raw == "arg":
 			p.consume("arg")
 			p.consume("=")
 			// string or number??
 			p.write(fmt.Sprintf("\"arg\":%v", strconv.Quote(p.curt().Raw)))
 			p.goNext()
-		case c.TokenKind == tokenize.IDENT && c.Raw == "annotation":
+		case c.TokenKind == IDENT && c.Raw == "annotation":
 			p.consume(c.Raw)
 			p.consume("=")
 			p.consume("[")
@@ -320,12 +318,12 @@ loop:
 			p.parse()
 			p.consume("]")
 			p.write("]")
-		case c.TokenKind == tokenize.COMMA:
+		case c.TokenKind == COMMA:
 			p.write(",")
 			p.consume(",")
-		case c.TokenKind == tokenize.WHITE:
+		case c.TokenKind == WHITE:
 			p.goNext()
-		case c.TokenKind == tokenize.RBR:
+		case c.TokenKind == RBR:
 			p.consume(")")
 			break loop
 		default:
@@ -343,22 +341,22 @@ loop:
 	for !p.isEof() {
 		c := p.curt()
 		switch {
-		case c.TokenKind == tokenize.IDENT && c.Raw == "id":
+		case c.TokenKind == IDENT && c.Raw == "id":
 			p.consume("id")
 			p.consume("=")
 			p.write(fmt.Sprintf("\"id\":%v", strconv.Quote(p.curt().Raw)))
 			p.goNext() // string
-		case c.TokenKind == tokenize.IDENT && c.Raw == "ctx":
+		case c.TokenKind == IDENT && c.Raw == "ctx":
 			p.consume("ctx")
 			p.consume("=")
 			p.write("\"ctx\":")
 			p.parse()
-		case c.TokenKind == tokenize.COMMA:
+		case c.TokenKind == COMMA:
 			p.write(",")
 			p.consume(",")
-		case c.TokenKind == tokenize.WHITE:
+		case c.TokenKind == WHITE:
 			p.goNext()
-		case c.TokenKind == tokenize.RBR:
+		case c.TokenKind == RBR:
 			p.consume(")")
 			break loop
 		default:

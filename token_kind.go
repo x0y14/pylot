@@ -1,4 +1,4 @@
-package tokenize
+package pylot
 
 type TokenKind int
 

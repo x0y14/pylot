@@ -1,8 +1,7 @@
-package parse
+package pylot
 
 import (
 	"github.com/stretchr/testify/assert"
-	"pylot/tokenize"
 	"testing"
 )
 
@@ -29,7 +28,7 @@ func TestParser_Parse(t *testing.T) {
 		},
 	}
 
-	tokenizer := tokenize.NewTokenizer()
+	tokenizer := NewTokenizer()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tokens, err := tokenizer.Tokenize(tt.in, true)

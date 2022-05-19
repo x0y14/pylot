@@ -1,9 +1,7 @@
-package parse
+package pylot
 
 import (
 	"fmt"
-	"pylot"
-	"pylot/tokenize"
 	"strconv"
 )
 
@@ -13,24 +11,24 @@ var (
 
 type Parser2 struct {
 	pos    int
-	tokens []tokenize.Token
+	tokens []Token
 	out    string
 }
 
-func V2(tokens []tokenize.Token) string {
+func V2(tokens []Token) string {
 	psr := NewParser2(tokens)
 	psr.parse()
 	return psr.out
 }
 
-func NewParser2(tokens []tokenize.Token) *Parser2 {
+func NewParser2(tokens []Token) *Parser2 {
 	return &Parser2{
 		pos:    0,
 		tokens: tokens,
 	}
 }
 func (p *Parser2) write(s string) {
-	fmt.Printf(s)
+	//fmt.Printf(s)
 	p.out += s
 }
 
@@ -38,10 +36,10 @@ func (p *Parser2) isEof() bool {
 	return p.pos >= len(p.tokens)
 }
 
-func (p *Parser2) curt() tokenize.Token {
+func (p *Parser2) curt() Token {
 	return p.tokens[p.pos]
 }
-func (p *Parser2) next() tokenize.Token {
+func (p *Parser2) next() Token {
 	return p.tokens[p.pos+1]
 }
 
@@ -61,35 +59,35 @@ loop:
 	for !p.isEof() {
 		curt := p.curt()
 		switch {
-		case curt.TokenKind == tokenize.IDENT:
-			if pylot.StringsContain(reserved, curt.Raw) {
+		case curt.TokenKind == IDENT:
+			if StringsContain(reserved, curt.Raw) {
 				p.keyword()
-			} else if p.next().TokenKind == tokenize.LBR {
+			} else if p.next().TokenKind == LBR {
 				p.def()
 			} else {
 				p.param()
 			}
-		case curt.TokenKind == tokenize.COMMA:
+		case curt.TokenKind == COMMA:
 			//p.write(",")
 			//fmt.Printf("$%v", p.next().TokenKind.String())
-			if p.next().TokenKind != tokenize.RSQB && p.next().TokenKind != tokenize.RBR {
+			if p.next().TokenKind != RSQB && p.next().TokenKind != RBR {
 				p.write(",")
 			}
 			p.consume(",")
-		case curt.TokenKind == tokenize.LSQB:
+		case curt.TokenKind == LSQB:
 			// [
 			p.list()
-		case curt.TokenKind == tokenize.RSQB:
+		case curt.TokenKind == RSQB:
 			// ]
 			return
-		case curt.TokenKind == tokenize.RBR:
+		case curt.TokenKind == RBR:
 			// )
 			return
-		case curt.TokenKind == tokenize.STRING || curt.TokenKind == tokenize.NUMBER:
+		case curt.TokenKind == STRING || curt.TokenKind == NUMBER:
 			p.value()
-		case curt.TokenKind == tokenize.WHITE:
+		case curt.TokenKind == WHITE:
 			p.goNext()
-		case curt.TokenKind == tokenize.EOF:
+		case curt.TokenKind == EOF:
 			break loop
 		default:
 			panic("syntax error: " + p.curt().Raw)
@@ -103,7 +101,7 @@ func (p *Parser2) def() {
 	p.goNext()
 	p.consume("(")
 	p.write(fmt.Sprintf(`{"type":"%v"`, ident.Raw))
-	if p.curt().TokenKind == tokenize.IDENT {
+	if p.curt().TokenKind == IDENT {
 		p.write(",")
 	}
 	p.parse()

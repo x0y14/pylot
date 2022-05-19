@@ -1,4 +1,4 @@
-package tokenize
+package pylot
 
 import (
 	"github.com/stretchr/testify/assert"
