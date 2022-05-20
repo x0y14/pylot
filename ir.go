@@ -133,10 +133,12 @@ func analyzeBody(m []any) error {
 			return fmt.Errorf("function body expr line need type field")
 		}
 		switch typ {
-		case "AnnAssign":
+		case "AnnAssign", "Assign":
 			if err := cAnnAssign(exprLine.(map[string]any)); err != nil {
 				return err
 			}
+		default:
+			panic("unsupported " + typ)
 		}
 	}
 
