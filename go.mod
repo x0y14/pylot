@@ -1,4 +1,4 @@
-module pylot
+module github.com/x0y14/pylot
 
 go 1.18
 
