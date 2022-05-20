@@ -111,7 +111,34 @@ func cFunctionDef(className string, m map[string]any) error {
 	fmt.Printf(") ")
 
 	fmt.Printf("{")
+
+	// body
+	bodyM, ok := m["body"]
+	if !ok {
+		panic("unsupported")
+	}
+	if err := analyzeBody(bodyM.([]any)); err != nil {
+		return err
+	}
+
 	fmt.Printf("}\n")
+	return nil
+}
+
+func analyzeBody(m []any) error {
+	fmt.Printf("\n")
+	for _, exprLine := range m {
+		typ, ok := exprLine.(map[string]any)["type"].(string)
+		if !ok {
+			return fmt.Errorf("function body expr line need type field")
+		}
+		switch typ {
+		case "AnnAssign":
+			if err := cAnnAssign(exprLine.(map[string]any)); err != nil {
+				return err
+			}
+		}
+	}
 
 	return nil
 }
@@ -207,13 +234,67 @@ func cAnnotation(m map[string]any) (string, error) {
 	return typ, nil
 }
 
-func cAttribute(m map[string]any) {}
+func cAttribute(m map[string]any) (string, error) {
+	// value
 
-func cAnnAssign(m map[string]any) (string, error) {
-	// target : attribute
+	nameM, ok := m["value"]
+	if !ok {
+		panic("attribute need value field")
+	}
+
+	name, err := cName(nameM.(map[string]any))
+	if err != nil {
+		return "", err
+	}
+	// attr
+	attr, ok := m["attr"].(string)
+	if !ok {
+		return "", fmt.Errorf("attribute need attr field")
+	}
+
+	return fmt.Sprintf("%v.%v", name, attr), nil
+}
+
+func cAnnAssign(m map[string]any) error {
+	// [annotation, target, value]
+	//var result [3]string
+
 	// annotation : name
-	// value : name
-	// simple : int
+	var annotation string
+	annotationM, ok := m["annotation"].(map[string]any)
+	if !ok {
+		annotation = "unknown"
+		//return nil, fmt.Errorf("annAssign need annotation field")
+	}
+	anno, err := cName(annotationM)
+	annotation = anno
 
-	return "", nil
+	// target : attribute
+	attrM, ok := m["target"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("annAssign need target field")
+	}
+	target, err := cAttribute(attrM)
+	if err != nil {
+		return err
+	}
+
+	// value : name
+	valueM, ok := m["value"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("annAssign need value field")
+	}
+	value, err := cName(valueM)
+	if err != nil {
+		return err
+	}
+
+	// simple : int ?
+
+	//result[0] = annotation
+	//result[1] = target
+	//result[2] = value
+	fmt.Printf("  %v: %v = %v\n", target, annotation, value)
+
+	return nil
 }
