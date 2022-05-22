@@ -136,7 +136,7 @@ func (t *Tokenizer) str() *Token {
 	}
 	t.goNext()
 	e := t.pos
-	return NewToken(STRING, raw, s, e)
+	return NewToken(STR, raw, s, e)
 }
 
 func (t *Tokenizer) number() *Token {

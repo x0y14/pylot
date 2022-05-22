@@ -110,14 +110,14 @@ func cFunctionDef(className string, m map[string]any) error {
 	fmt.Printf("%v", arguments)
 	fmt.Printf(") ")
 
-	fmt.Printf("{")
+	fmt.Printf("{\n")
 
 	// body
 	bodyM, ok := m["body"]
 	if !ok {
 		panic("unsupported")
 	}
-	if err := analyzeBody(bodyM.([]any)); err != nil {
+	if err := analyzeBodyExpressions(bodyM.([]any)); err != nil {
 		return err
 	}
 
@@ -125,24 +125,42 @@ func cFunctionDef(className string, m map[string]any) error {
 	return nil
 }
 
-func analyzeBody(m []any) error {
-	fmt.Printf("\n")
+func analyzeBodyExpressions(m []any) error {
+	//fmt.Printf("\n")
 	for _, exprLine := range m {
-		typ, ok := exprLine.(map[string]any)["type"].(string)
-		if !ok {
-			return fmt.Errorf("function body expr line need type field")
-		}
-		switch typ {
-		case "AnnAssign", "Assign":
-			if err := cAnnAssign(exprLine.(map[string]any)); err != nil {
-				return err
-			}
-		default:
-			panic("unsupported " + typ)
+		_, err := analyzeBodyExpression(exprLine.(map[string]any))
+		if err != nil {
+			return err
 		}
 	}
 
 	return nil
+}
+
+func analyzeBodyExpression(m map[string]any) (string, error) {
+	typ, ok := m["type"].(string)
+	if !ok {
+		return "", fmt.Errorf("function body expr line need type field")
+	}
+	switch typ {
+	case "Expr":
+		if err := cExpr(m); err != nil {
+			return "", err
+		}
+	case "AnnAssign", "Assign":
+		if err := cAnnAssign(m); err != nil {
+			return "", err
+		}
+	case "BinOp":
+		s, err := cBinOp(m)
+		if err != nil {
+			return s, err
+		}
+		fmt.Printf("%v", s)
+	default:
+		panic("unsupported " + typ)
+	}
+	return "", nil
 }
 
 func analyzeRtInfo(m map[string]any) (string, error) {
@@ -299,4 +317,97 @@ func cAnnAssign(m map[string]any) error {
 	fmt.Printf("  %v: %v = %v\n", target, annotation, value)
 
 	return nil
+}
+
+func cExpr(m map[string]any) error {
+	valueM, ok := m["value"]
+	if !ok {
+		return fmt.Errorf("expr need value field")
+	}
+
+	return cCall(valueM.(map[string]any))
+}
+
+func cCall(m map[string]any) error {
+	funcNameM, ok := m["func"]
+	if !ok {
+		return fmt.Errorf("")
+	}
+	funcName, err := cName(funcNameM.(map[string]any))
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("  call $type @%v(", funcName)
+	funcArgs, ok := m["args"].([]any)
+	if ok {
+		err = analyzeBodyExpressions(funcArgs)
+		if err != nil {
+			return err
+		}
+	}
+	fmt.Printf(")\n")
+	return nil
+}
+
+func cOp(m map[string]any) (string, error) {
+	typ, ok := m["type"].(string)
+	if !ok {
+		return "", fmt.Errorf("op need type field")
+	}
+
+	return typ, nil
+}
+
+func cValue(m map[string]any) (string, error) {
+	// cAttribute
+	// cConstant
+	typ, ok := m["type"].(string)
+	if !ok {
+		return "", fmt.Errorf("$value need type field")
+	}
+
+	switch typ {
+	case "Attribute":
+		return cAttribute(m)
+	case "Constant":
+		return cConstant(m)
+	default:
+		fmt.Printf("cValueType: %v\n", typ)
+		panic("unsupported")
+	}
+
+	return "", nil
+}
+
+func cBinOp(m map[string]any) (string, error) {
+	leftM, ok := m["left"]
+	if !ok {
+		return "", fmt.Errorf("binOp need left field")
+	}
+	left, err := cValue(leftM.(map[string]any))
+	if err != nil {
+		return "", err
+	}
+
+	opM, ok := m["op"]
+	if !ok {
+		return "", fmt.Errorf("binOp need op field")
+	}
+	op, err := cOp(opM.(map[string]any))
+	if err != nil {
+		return "", err
+	}
+
+	rightM, ok := m["right"]
+	if !ok {
+		return "", fmt.Errorf("binOp need right field")
+	}
+	right, err := cValue(rightM.(map[string]any))
+	if err != nil {
+		return "", err
+	}
+
+	//fmt.Printf("(%v, %v, %v)\n", op, left, right)
+	return fmt.Sprintf("(%v, %v, %v)\n", op, left, right), nil
 }

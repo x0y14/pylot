@@ -17,7 +17,7 @@ func TestTokenizer_Tokenize(t *testing.T) {
 			[]Token{
 				{IDENT, "print", 0, 5},
 				{LBR, "(", 5, 6},
-				{STRING, "hello", 6, 13},
+				{STR, "hello", 6, 13},
 				{RBR, ")", 13, 14},
 				{WHITE, "\n", 14, 15},
 				{EOF, "", 15, 15},
@@ -29,7 +29,7 @@ func TestTokenizer_Tokenize(t *testing.T) {
 			[]Token{
 				{IDENT, "print", 0, 5},
 				{LBR, "(", 5, 6},
-				{STRING, "hello", 6, 13},
+				{STR, "hello", 6, 13},
 				{RBR, ")", 13, 14},
 				{WHITE, "\n", 14, 15},
 				{EOF, "", 15, 15},
@@ -41,7 +41,7 @@ func TestTokenizer_Tokenize(t *testing.T) {
 			[]Token{
 				{IDENT, "print", 0, 5},
 				{LBR, "(", 5, 6},
-				{STRING, "\"hello\"", 6, 15},
+				{STR, "\"hello\"", 6, 15},
 				{RBR, ")", 15, 16},
 				{WHITE, "\n", 16, 17},
 				{EOF, "", 17, 17},

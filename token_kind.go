@@ -6,7 +6,7 @@ const (
 	_ TokenKind = iota
 	EOF
 	IDENT  // keyword
-	STRING // ""
+	STR    // ""
 	NUMBER // 0123456789
 	LBR    // (
 	RBR    // )
@@ -19,7 +19,7 @@ const (
 
 var kinds = [...]string{
 	IDENT:  "IDENT",
-	STRING: "STRING",
+	STR:    "STR",
 	NUMBER: "NUMBER",
 	LBR:    "LBR",
 	RBR:    "RBR",

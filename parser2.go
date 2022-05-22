@@ -83,7 +83,7 @@ loop:
 		case curt.TokenKind == RBR:
 			// )
 			return
-		case curt.TokenKind == STRING || curt.TokenKind == NUMBER:
+		case curt.TokenKind == STR || curt.TokenKind == NUMBER:
 			p.value()
 		case curt.TokenKind == WHITE:
 			p.goNext()

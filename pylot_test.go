@@ -43,6 +43,34 @@ func TestToJson(t *testing.T) {
         return "myname"`,
 			"",
 		},
+		{
+			"class and globa func",
+			`def global_func() -> int:
+	return 1
+class Human:
+    def __init__(self, name: str):
+        self.name = name
+
+    def say(self, text: str) -> None:
+        print(self.name + "< " + text)
+    
+    def mr(self) -> str:
+        return "Mr."+self.name
+    
+    def my_name(self) -> str:
+        return "myname"`,
+			"",
+		},
+		{
+			"a",
+			`def say(text: str):
+    return text
+
+def hello(name: str):
+    you = name
+    print(you)`,
+			"a",
+		},
 	}
 
 	for _, tt := range tests {

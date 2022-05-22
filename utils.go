@@ -1,5 +1,7 @@
 package pylot
 
+import "strings"
+
 func StringsContain(strs []string, str string) bool {
 	for _, s := range strs {
 		if s == str {
@@ -7,4 +9,8 @@ func StringsContain(strs []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func Indent(nest int) string {
+	return strings.Repeat("  ", nest)
 }
