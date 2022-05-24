@@ -5,6 +5,7 @@ func ToJson(code string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	//fmt.Println(pyAst)
 	tokenizer := NewTokenizer()
 	tokens, err := tokenizer.Tokenize(pyAst, true)
 	if err != nil {

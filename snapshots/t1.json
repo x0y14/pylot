@@ -1,0 +1,178 @@
+{
+  "type": "Module",
+  "body": [
+    {
+      "type": "FunctionDef",
+      "name": "say",
+      "args": {
+        "type": "arguments",
+        "posonlyargs": [],
+        "args": [
+          {
+            "type": "arg",
+            "arg": "text",
+            "annotation": {
+              "type": "Name",
+              "id": "str",
+              "ctx": {
+                "type": "Load"
+              }
+            }
+          }
+        ],
+        "kwonlyargs": [],
+        "kw_defaults": [],
+        "defaults": []
+      },
+      "body": [
+        {
+          "type": "Return",
+          "value": {
+            "type": "Name",
+            "id": "text",
+            "ctx": {
+              "type": "Load"
+            }
+          }
+        }
+      ],
+      "decorator_list": []
+    },
+    {
+      "type": "FunctionDef",
+      "name": "hello",
+      "args": {
+        "type": "arguments",
+        "posonlyargs": [],
+        "args": [
+          {
+            "type": "arg",
+            "arg": "name",
+            "annotation": {
+              "type": "Name",
+              "id": "str",
+              "ctx": {
+                "type": "Load"
+              }
+            }
+          }
+        ],
+        "kwonlyargs": [],
+        "kw_defaults": [],
+        "defaults": []
+      },
+      "body": [
+        {
+          "type": "Assign",
+          "targets": [
+            {
+              "type": "Name",
+              "id": "you",
+              "ctx": {
+                "type": "Store"
+              }
+            }
+          ],
+          "value": {
+            "type": "Name",
+            "id": "name",
+            "ctx": {
+              "type": "Load"
+            }
+          }
+        },
+        {
+          "type": "Expr",
+          "value": {
+            "type": "Call",
+            "func": {
+              "type": "Name",
+              "id": "print",
+              "ctx": {
+                "type": "Load"
+              }
+            },
+            "args": [
+              {
+                "type": "Name",
+                "id": "you",
+                "ctx": {
+                  "type": "Load"
+                }
+              }
+            ],
+            "keywords": []
+          }
+        },
+        {
+          "type": "Assign",
+          "targets": [
+            {
+              "type": "Tuple",
+              "elts": [
+                {
+                  "type": "Name",
+                  "id": "a",
+                  "ctx": {
+                    "type": "Store"
+                  }
+                },
+                {
+                  "type": "Name",
+                  "id": "b",
+                  "ctx": {
+                    "type": "Store"
+                  }
+                }
+              ],
+              "ctx": {
+                "type": "Store"
+              }
+            }
+          ],
+          "value": {
+            "type": "Tuple",
+            "elts": [
+              {
+                "type": "Constant",
+                "value": "a"
+              },
+              {
+                "type": "Constant",
+                "value": "b"
+              }
+            ],
+            "ctx": {
+              "type": "Load"
+            }
+          }
+        },
+        {
+          "type": "Return",
+          "value": {
+            "type": "BinOp",
+            "left": {
+              "type": "Name",
+              "id": "a",
+              "ctx": {
+                "type": "Load"
+              }
+            },
+            "op": {
+              "type": "Add"
+            },
+            "right": {
+              "type": "Name",
+              "id": "b",
+              "ctx": {
+                "type": "Load"
+              }
+            }
+          }
+        }
+      ],
+      "decorator_list": []
+    }
+  ],
+  "type_ignores": []
+}

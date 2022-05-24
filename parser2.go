@@ -2,7 +2,6 @@ package pylot
 
 import (
 	"fmt"
-	"strconv"
 )
 
 var (
@@ -127,7 +126,11 @@ func (p *Parser2) list() {
 
 func (p *Parser2) value() {
 	v := p.curt()
-	p.write(strconv.Quote(v.Raw))
+	if v.TokenKind == STR {
+		p.write(fmt.Sprintf("\"%v\"", v.Raw))
+	} else {
+		p.write(v.Raw)
+	}
 	p.goNext()
 }
 

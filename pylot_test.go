@@ -68,7 +68,9 @@ class Human:
 
 def hello(name: str):
     you = name
-    print(you)`,
+    print(you)
+    a, b = "a", "b"
+    return a+b`,
 			"a",
 		},
 	}

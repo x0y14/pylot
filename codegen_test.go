@@ -1,6 +1,9 @@
 package pylot
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 const (
 	testClass = `{
@@ -302,6 +305,51 @@ func TestCodeGen_Gen(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := cg.Gen(tt.in)
 			cg.Disclosure()
+			fmt.Printf("%v", cg.defines.String())
+			if err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestCodeGen_Gen_Origin(t *testing.T) {
+	var tests = []struct {
+		name   string
+		in     string
+		expect string
+	}{
+		{
+			"int string test",
+			`def global_func() -> int:
+	return 1
+class Human:
+    def __init__(self, name: str):
+        self.name = name
+
+    def say(self, text: str) -> None:
+        print(self.name + "< " + text)
+    
+    def mr(self) -> str:
+        return "Mr."+self.name
+    
+    def my_name(self) -> str:
+        return "myname"`,
+			"",
+		},
+	}
+
+	cg := NewCodeGen()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			code, err := ToJson(tt.in)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = cg.Gen(code)
+			cg.Disclosure()
+			fmt.Printf("%v", cg.defines.String())
 			if err != nil {
 				t.Fatal(err)
 			}
