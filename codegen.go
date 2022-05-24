@@ -5,6 +5,7 @@ import (
 	"fmt"
 	types2 "go/types"
 	"strconv"
+	"strings"
 )
 
 type CodeGen struct {
@@ -225,11 +226,6 @@ func (c *CodeGen) functionDef(m map[string]any) error {
 
 // 定数
 func (c *CodeGen) constant(m map[string]any) (string, error) {
-	// これ、定数。これだけでは型がわからない。
-	// 推論するしかない。?
-	// 呼び出し元がわかれば良い。 -> group..?
-
-	//var typ string
 	var val string
 
 	value, ok := m["value"]
@@ -245,17 +241,6 @@ func (c *CodeGen) constant(m map[string]any) (string, error) {
 	case string:
 		val = strconv.Quote(value.(string))
 	}
-
-	//typDef, ok := c.defines.get(c.getGroupName())
-	//if !ok {
-	//	typ = UNKNOWN.String()
-	//} else {
-	//	if typDef.Ret.Types != UNDEFINED {
-	//		typ = typDef.Ret.String()
-	//	} else {
-	//		typ = typDef.Self.String()
-	//	}
-	//}
 
 	return fmt.Sprintf("%v", val), nil
 }
@@ -312,7 +297,9 @@ func (c *CodeGen) arg(m map[string]any) (string, error) {
 		typ = UNKNOWN.String()
 	}
 
-	//typ = "&&" + typ
+	if strings.Count(c.getGroupName(), ".") == 3 && name == "self" {
+		typ = INSTANCE.String()
+	}
 
 	err := c.defines.set(c.getGroupName(), DataDefine{
 		Self: ObjectDataType{
@@ -367,19 +354,6 @@ func (c *CodeGen) attribute(m map[string]any) (string, error) {
 }
 
 func (c *CodeGen) annAssign(m map[string]any) (string, error) {
-	//var annotation string
-	//annotationM, ok := m["annotation"].(map[string]any)
-	//if !ok {
-	//	//return "", fmt.Errorf("annAssign need annotation field")
-	//	annotation = UNKNOWN.String()
-	//} else {
-	//	ann, err := c.annotation(annotationM) // ?
-	//	if err != nil {
-	//		return "", err
-	//	}
-	//	annotation = ann
-	//}
-
 	targetM, ok := m["target"].(map[string]any)
 	if !ok {
 		return "", fmt.Errorf("annAssign need target field")
@@ -398,6 +372,7 @@ func (c *CodeGen) annAssign(m map[string]any) (string, error) {
 		return "", err
 	}
 
+	// todo 型
 	// value annotation
 	valueTyp := UNKNOWN.String()
 	vt, ok := c.defines.get(c.getGroupName() + "." + value)
@@ -444,6 +419,7 @@ func (c *CodeGen) assign(m map[string]any) (string, error) {
 		return "", err
 	}
 
+	// todo 型
 	// value annotation
 	valueTyp := UNKNOWN.String()
 	vt, ok := c.defines.get(c.getGroupName() + "." + value)
@@ -473,7 +449,6 @@ func (c *CodeGen) call(m map[string]any) (string, error) {
 		return "", err
 	}
 
-	//fmt.Printf("  call $type @%v(", funcName)
 	fArgs := ""
 	funcArgs, ok := m["args"].([]any)
 	if ok {
@@ -489,6 +464,7 @@ func (c *CodeGen) call(m map[string]any) (string, error) {
 		}
 	}
 
+	// todo : class関数ならdefines内部にある可能性
 	callRetTyp := UNKNOWN.String()
 
 	return fmt.Sprintf("call %v %v(%v)", callRetTyp, name, fArgs), nil

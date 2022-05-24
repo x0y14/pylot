@@ -11,6 +11,7 @@ const (
 	UNKNOWN Types = iota
 	UNDEFINED
 	CLASS
+	INSTANCE
 	FUNCTION
 
 	INTEGER
@@ -25,6 +26,7 @@ var types = [...]string{
 	UNKNOWN:   "UNKNOWN",
 	UNDEFINED: "UNDEFINED",
 	CLASS:     "CLASS",
+	INSTANCE:  "INSTANCE",
 	FUNCTION:  "FUNCTION",
 	INTEGER:   "INTEGER",
 	FLOAT:     "FLOAT",
@@ -48,6 +50,8 @@ func ToTypes(s string) Types {
 		return NULL
 	//case "void":
 	//	return VOID
+	case "instance":
+		return INSTANCE
 	default:
 		return UNKNOWN
 	}
