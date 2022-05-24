@@ -5,7 +5,6 @@ import (
 	"fmt"
 	types2 "go/types"
 	"strconv"
-	"strings"
 )
 
 type CodeGen struct {
@@ -119,7 +118,14 @@ func (c *CodeGen) classDef(m map[string]any) error {
 	c.concatGroupName(name)
 	if err := c.defines.set(c.getGroupName(), DataDefine{
 		//Scope: PUBLIC,
-		Types: CLASS,
+		Self: ObjectDataType{
+			CLASS,
+			"",
+		},
+		Ret: ObjectDataType{
+			Types: UNDEFINED,
+			Raw:   "",
+		},
 	}); err != nil {
 		return err
 	}
@@ -164,9 +170,14 @@ func (c *CodeGen) functionDef(m map[string]any) error {
 
 	// 宣言を記憶
 	if err := c.defines.set(c.getGroupName(), DataDefine{
-		//Scope: scope,
-		RetTypes: ToTypes(retType),
-		Types:    FUNCTION,
+		Self: ObjectDataType{
+			Types: FUNCTION,
+			Raw:   "",
+		},
+		Ret: ObjectDataType{
+			Types: ToTypes(retType),
+			Raw:   retType,
+		},
 	}); err != nil {
 		return err
 	}
@@ -218,7 +229,7 @@ func (c *CodeGen) constant(m map[string]any) (string, error) {
 	// 推論するしかない。?
 	// 呼び出し元がわかれば良い。 -> group..?
 
-	var typ string
+	//var typ string
 	var val string
 
 	value, ok := m["value"]
@@ -227,7 +238,7 @@ func (c *CodeGen) constant(m map[string]any) (string, error) {
 	}
 
 	switch value.(type) {
-	case types2.Nil:
+	case nil, types2.Nil:
 		val = "null"
 	case float32, float64, int:
 		val = fmt.Sprintf("%v", value)
@@ -235,18 +246,18 @@ func (c *CodeGen) constant(m map[string]any) (string, error) {
 		val = strconv.Quote(value.(string))
 	}
 
-	typDef, ok := c.defines.get(c.getGroupName())
-	if !ok {
-		typ = UNKNOWN.String()
-	} else {
-		if typDef.RetTypes != UNDEFINED {
-			typ = typDef.RetTypes.String()
-		} else {
-			typ = typDef.Types.String()
-		}
-	}
+	//typDef, ok := c.defines.get(c.getGroupName())
+	//if !ok {
+	//	typ = UNKNOWN.String()
+	//} else {
+	//	if typDef.Ret.Types != UNDEFINED {
+	//		typ = typDef.Ret.String()
+	//	} else {
+	//		typ = typDef.Self.String()
+	//	}
+	//}
 
-	return fmt.Sprintf("%v %v", typ, val), nil
+	return fmt.Sprintf("%v", val), nil
 }
 
 func (c *CodeGen) name(m map[string]any) (string, error) {
@@ -255,7 +266,7 @@ func (c *CodeGen) name(m map[string]any) (string, error) {
 		return "", fmt.Errorf("name need id field")
 	}
 
-	return "###" + id, nil
+	return id, nil
 }
 
 func (c *CodeGen) arguments(m map[string]any) (string, error) {
@@ -301,9 +312,17 @@ func (c *CodeGen) arg(m map[string]any) (string, error) {
 		typ = UNKNOWN.String()
 	}
 
+	//typ = "&&" + typ
+
 	err := c.defines.set(c.getGroupName(), DataDefine{
-		Types:    ToTypes(typ),
-		RetTypes: UNDEFINED,
+		Self: ObjectDataType{
+			Types: ToTypes(typ),
+			Raw:   typ,
+		},
+		Ret: ObjectDataType{
+			Types: UNDEFINED,
+			Raw:   "",
+		},
 	})
 	if err != nil {
 		return "", err
@@ -336,16 +355,15 @@ func (c *CodeGen) attribute(m map[string]any) (string, error) {
 	// groupNameに.が２つ入っていたら、クラス内の関数だとわかる + selfだった場合 -> groupName + attrで定義されてる可能性あり
 	// (selfは未使用推奨なのでselfだけで良い気がするが安全のため)
 
-	typ := UNKNOWN.String()
+	//typ := UNKNOWN.String()
+	//if strings.Count(c.getGroupName(), ".") == 2 && name == "self" {
+	//	t, ok := c.defines.get(c.getGroupName() + "." + attr)
+	//	if ok {
+	//		typ = t.Self.String()
+	//	}
+	//}
 
-	if strings.Count(c.getGroupName(), ".") == 2 && name == "self" {
-		t, ok := c.defines.get(c.getGroupName() + "." + attr)
-		if ok {
-			typ = t.Types.String()
-		}
-	}
-
-	return fmt.Sprintf("%v %v.%v", typ, name, attr), nil
+	return fmt.Sprintf("%v.%v", name, attr), nil
 }
 
 func (c *CodeGen) annAssign(m map[string]any) (string, error) {
@@ -384,7 +402,7 @@ func (c *CodeGen) annAssign(m map[string]any) (string, error) {
 	valueTyp := UNKNOWN.String()
 	vt, ok := c.defines.get(c.getGroupName() + "." + value)
 	if ok {
-		valueTyp = vt.Types.String()
+		valueTyp = vt.Self.String()
 	}
 
 	return fmt.Sprintf("%v = %v %v", target, valueTyp, value), nil
@@ -430,7 +448,7 @@ func (c *CodeGen) assign(m map[string]any) (string, error) {
 	valueTyp := UNKNOWN.String()
 	vt, ok := c.defines.get(c.getGroupName() + "." + value)
 	if ok {
-		valueTyp = vt.Types.String()
+		valueTyp = vt.Self.String()
 	}
 
 	return fmt.Sprintf("%v = %v %v", targets, valueTyp, value), nil

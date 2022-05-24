@@ -1,6 +1,7 @@
 package pylot
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -32,18 +33,6 @@ var types = [...]string{
 }
 
 func (t Types) String() string {
-	//switch t {
-	//case UNKNOWN, UNDEFINED:
-	//	return color.HiRedString(types[t])
-	//case CLASS:
-	//	return color.HiWhiteString(types[t])
-	//case FUNCTION:
-	//	return color.HiCyanString(types[t])
-	//case INTEGER, FLOAT, STRING, NULL:
-	//	return color.HiGreenString(types[t])
-	//default:
-	//	panic("unsupported types")
-	//}
 	return types[t]
 }
 
@@ -62,4 +51,16 @@ func ToTypes(s string) Types {
 	default:
 		return UNKNOWN
 	}
+}
+
+type ObjectDataType struct {
+	Types
+	Raw string
+}
+
+func (o ObjectDataType) String() string {
+	if o.Types == UNKNOWN {
+		return fmt.Sprintf("%v(\"%v\")", o.Types.String(), o.Raw)
+	}
+	return o.Types.String()
 }

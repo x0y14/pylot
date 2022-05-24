@@ -4,12 +4,12 @@ import "fmt"
 
 type DataDefine struct {
 	//Scope // いらない気がする
-	Types
-	RetTypes Types
+	Self ObjectDataType
+	Ret  ObjectDataType
 }
 
 func (d DataDefine) String() string {
-	return fmt.Sprintf("{ Types:%15v, RetTypes:%15v }", d.Types.String(), d.RetTypes.String())
+	return fmt.Sprintf("{ Self:%20v, Ret:%20v }", d.Self.String(), d.Ret.String())
 }
 
 type DataDefines map[string]DataDefine

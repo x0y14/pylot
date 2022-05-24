@@ -347,6 +347,7 @@ class Human:
 			if err != nil {
 				t.Fatal(err)
 			}
+			fmt.Println(code)
 			err = cg.Gen(code)
 			cg.Disclosure()
 			fmt.Printf("%v", cg.defines.String())
